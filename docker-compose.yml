@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  db:
+    image: ankane/pgvector:v0.7.0
+    hostname: db
+    environment:
+      POSTGRES_DB: vexere
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  ollama:
+    image: ollama/ollama:latest
+    hostname: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    hostname: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./faq_data.csv:/app/faq_data.csv
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/vexere
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=qwen2:7b
+      - EMBEDDING_MODEL_NAME=all-MiniLM-L6-v2
+    depends_on:
+      ollama:
+        condition: service_started
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    hostname: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  ollama_data:
