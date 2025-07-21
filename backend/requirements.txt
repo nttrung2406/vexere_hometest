@@ -1,0 +1,10 @@
+fastapi
+uvicorn[standard]
+python-dotenv
+sqlalchemy
+psycopg2-binary
+pgvector-sqlalchemy
+sentence-transformers
+pandas
+requests
+aiohttp
