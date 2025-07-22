@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   db:
-    image: ankane/pgvector:v0.7.0
+    image: ankane/pgvector
     hostname: db
     environment:
       POSTGRES_DB: vexere
@@ -30,22 +30,23 @@ services:
 
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     hostname: backend
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
+      - ./backend:/app/backend           
       - ./faq_data.csv:/app/faq_data.csv
     environment:
       - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/vexere
       - OLLAMA_API_BASE_URL=http://ollama:11434
-      - OLLAMA_MODEL=qwen2:7b
+      - OLLAMA_MODEL=qwen3:1.7b
       - EMBEDDING_MODEL_NAME=all-MiniLM-L6-v2
     depends_on:
       ollama:
         condition: service_started
+
 
   frontend:
     build:
