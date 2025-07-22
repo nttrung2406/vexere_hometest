@@ -24,7 +24,7 @@ else
 fi
 
 echo "--- Running database embedding script inside the 'backend' container ---"
-docker-compose exec backend python scripts/embed_faq.py
+docker compose exec backend python -m backend.scripts.embed_faq
 
 echo "--- All services are up and running! ---"
 echo ""
